@@ -45,7 +45,7 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-uint32_t system_time_ms = 0;
+volatile uint32_t system_time_ms = 0;
 uint32_t task5_id;
 /* USER CODE END PV */
 
@@ -72,34 +72,20 @@ PUTCHAR_PROTOTYPE {
     return ch;
 }
 
-void led_blink_1() {
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
-    printf("Timestamp: %lu ms - LED 1 toggled\r\n", system_time_ms);
-}
-void led_blink_2() {
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_2);
-    printf("Timestamp: %lu ms - LED 2 toggled\r\n", system_time_ms);
-}
-void led_blink_3() {
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_3);
-    printf("Timestamp: %lu ms - LED 3 toggled\r\n", system_time_ms);
-}
-void led_blink_4() {
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
-    printf("Timestamp: %lu ms - LED 4 toggled\r\n", system_time_ms);
-}
-void led_blink_5() {
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-    printf("Timestamp: %lu ms - LED 5 toggled\r\n", system_time_ms);
+uint32_t get_time(void) {
+    return system_time_ms;
 }
 
-void print_time_10ms() {
-    // In thời gian mỗi 10ms theo đúng yêu cầu đề bài
-    printf("10ms Tick Time: %lu ms\r\n", system_time_ms);
-}
+void task_1() { HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1); printf("[%lu] Task 1\r\n", get_time()); }
+void task_2() { HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_2); printf("[%lu] Task 2\r\n",   get_time()); }
+void task_3() { HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_3); printf("[%lu] Task 3\r\n", get_time()); }
+void task_4() { HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4); printf("[%lu] Task 4\r\n",   get_time()); }
+void task_5() { HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); printf("[%lu] Task 5\r\n", get_time()); }
+
+void print_time_10ms() { printf("[%lu] tick\r\n", get_time()); }
 
 void demo_delete_task() {
-    printf("Timestamp: %lu ms - DELETING TASK 5...\r\n", system_time_ms);
+    printf("[%lu] DEL T5\r\n", get_time());
     SCH_Delete_Task(task5_id);
 }
 
@@ -138,20 +124,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
     SCH_Init();
 
-    // Yêu cầu: Đăng ký một callback mỗi 10ms (1 tick)
     SCH_Add_Task(print_time_10ms, 1, 1);
 
-    // Yêu cầu: Delay ban đầu phải lớn hơn 0 để task thức dậy SAU KHI vào while(1)
-    // Thay số 0 thành thời gian delay tương ứng với chu kỳ của nó
-    SCH_Add_Task(led_blink_1, 50, 50);   // Khởi chạy sau 500ms, lặp lại mỗi 500ms
-    SCH_Add_Task(led_blink_2, 100, 100); // Khởi chạy sau 1s, lặp lại mỗi 1s
-    SCH_Add_Task(led_blink_3, 150, 150); // Khởi chạy sau 1.5s, lặp lại mỗi 1.5s
-    SCH_Add_Task(led_blink_4, 200, 200); // Khởi chạy sau 2s, lặp lại mỗi 2s
+    SCH_Add_Task(task_1, 50, 50);
+    SCH_Add_Task(task_2, 100, 100);
+    SCH_Add_Task(task_3, 150, 150);
+    SCH_Add_Task(task_4, 200, 200);
 
-    // Lưu lại ID của task 5
-    task5_id = SCH_Add_Task(led_blink_5, 250, 250); // Khởi chạy sau 2.5s, lặp lại mỗi 2.5s
+    task5_id = SCH_Add_Task(task_5, 250, 250);
 
-    // Thêm 1 task chạy MỘT LẦN sau 10 giây (1000 ticks) để xóa task 5
     SCH_Add_Task(demo_delete_task, 1000, 0);
 
     HAL_TIM_Base_Start_IT(&htim2);
@@ -164,7 +145,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-      SCH_Dispatch_Tasks(); // Thêm dòng này để thực thi các task đã đến gi�?
+      SCH_Dispatch_Tasks();
     }
   /* USER CODE END 3 */
 }
@@ -313,7 +294,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if(htim->Instance == TIM2) {
-        system_time_ms += 10; // Cập nhật thời gian mỗi 10ms
+        system_time_ms += 10;
         SCH_Update();
     }
 }

@@ -1,5 +1,7 @@
-scheduler.c:6:6:SCH_Init	16	static
-scheduler.c:16:6:SCH_Update	4	static
-scheduler.c:30:10:SCH_Add_Task	40	static
-scheduler.c:60:6:SCH_Dispatch_Tasks	40	static
-scheduler.c:77:9:SCH_Delete_Task	32	static
+scheduler.c:9:13:remove_at	32	static
+scheduler.c:23:17:insert_task	40	static
+scheduler.c:50:6:SCH_Init	16	static
+scheduler.c:61:6:SCH_Update	4	static
+scheduler.c:75:10:SCH_Add_Task	40	static,ignoring_inline_asm
+scheduler.c:89:6:SCH_Dispatch_Tasks	56	static,ignoring_inline_asm
+scheduler.c:127:9:SCH_Delete_Task	32	static,ignoring_inline_asm
